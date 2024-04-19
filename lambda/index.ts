@@ -10,11 +10,11 @@ import {
 
 const client = new DynamoDBClient({});
 const docClient = DynamoDBDocumentClient.from(client);
-const APP_TABLE = process.env.APP_TABLE || "AppTable";
+const APP_TABLE_NAME = process.env.APP_TABLE_NAME || "AppTable";
 
 export const create = async () => {
   const command = new PutCommand({
-    TableName: APP_TABLE,
+    TableName: APP_TABLE_NAME,
     Item: {
       id: "my-id",
       foo: {
@@ -31,7 +31,7 @@ export const create = async () => {
 
 export const get = async () => {
   const command = new GetCommand({
-    TableName: APP_TABLE,
+    TableName: APP_TABLE_NAME,
     Key: {
       id: "my-id",
     },
@@ -44,7 +44,7 @@ export const get = async () => {
 
 export const query = async () => {
   const command = new QueryCommand({
-    TableName: APP_TABLE,
+    TableName: APP_TABLE_NAME,
     KeyConditionExpression: "kaz = :kaz",
     ExpressionAttributeValues: {
       ":kaz": "koo",
@@ -59,7 +59,7 @@ export const query = async () => {
 
 export const update = async () => {
   const command = new UpdateCommand({
-    TableName: APP_TABLE,
+    TableName: APP_TABLE_NAME,
     Key: {
       id: "my-id",
     },
@@ -77,7 +77,7 @@ export const update = async () => {
 
 export const remove = async () => {
   const command = new DeleteCommand({
-    TableName: APP_TABLE,
+    TableName: APP_TABLE_NAME,
     Key: {
       id: "my-id",
     },
