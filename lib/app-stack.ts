@@ -1,10 +1,17 @@
 import * as cdk from "aws-cdk-lib";
 import * as dynamodb from "aws-cdk-lib/aws-dynamodb";
 import * as lambda from "aws-cdk-lib/aws-lambda";
-import * as eventsources from "aws-cdk-lib/aws-lambda-event-sources";
-import * as ecs from "aws-cdk-lib/aws-ecs";
-import * as ecs_patterns from "aws-cdk-lib/aws-ecs-patterns";
 import { Construct } from "constructs";
+import {
+  ComputeValue,
+  ContainerProps,
+  SearchProps,
+  useSearch,
+} from "../search";
+
+const APP_TABLE_NAME = process.env.APP_TABLE || "AppTable";
+const APP_SEARCH_KEY = process.env.APP_SEARCH_KEY;
+const APP_SEARCH_INDEX = process.env.APP_SEARCH_INDEX || APP_TABLE_NAME;
 
 export class AppStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -17,13 +24,36 @@ export class AppStack extends cdk.Stack {
       stream: dynamodb.StreamViewType.NEW_IMAGE,
     });
 
+    // Import useSearch helper
+    const search: SearchProps = {
+      /* 
+        Used as the Master key and API key
+        visit https://www.meilisearch.com/docs/learn/security/basic_security
+      */
+      apiKey: APP_SEARCH_KEY!, // Required
+      // Search index, you can define your own search index here on in the ".env" file
+      index: APP_SEARCH_INDEX, // Optional: Initialized as the table name
+    };
+
+    /* 
+      The container compute power (hosted in ECS Fargate as a Docker image)
+      visit https://docs.aws.amazon.com/AmazonECS/latest/developerguide/create-container-image.html
+    */
+    const container: ContainerProps = {
+      cpu: ComputeValue.v256,
+      memoryLimitMiB: ComputeValue.v512,
+    };
+
+    useSearch(table, search, container);
+
+    // Add your own CRUD Lambda functions
     // Lambda Functions
     const fnCreate = new lambda.Function(this, "AppFunctionCreate", {
       runtime: lambda.Runtime.NODEJS_16_X,
       handler: "index.create",
       code: lambda.Code.fromAsset("lambda"), // Assuming your Lambda code is in a folder named 'lambda'
       environment: {
-        TABLE_NAME: table.tableName,
+        APP_TABLE_NAME: table.tableName,
       },
     });
 
@@ -32,7 +62,7 @@ export class AppStack extends cdk.Stack {
       handler: "index.get",
       code: lambda.Code.fromAsset("lambda"),
       environment: {
-        TABLE_NAME: table.tableName,
+        APP_TABLE_NAME: table.tableName,
       },
     });
 
@@ -41,7 +71,7 @@ export class AppStack extends cdk.Stack {
       handler: "index.query",
       code: lambda.Code.fromAsset("lambda"),
       environment: {
-        TABLE_NAME: table.tableName,
+        APP_TABLE_NAME: table.tableName,
       },
     });
 
@@ -50,7 +80,7 @@ export class AppStack extends cdk.Stack {
       handler: "index.update",
       code: lambda.Code.fromAsset("lambda"),
       environment: {
-        TABLE_NAME: table.tableName,
+        APP_TABLE_NAME: table.tableName,
       },
     });
 
@@ -59,7 +89,7 @@ export class AppStack extends cdk.Stack {
       handler: "index.remove",
       code: lambda.Code.fromAsset("lambda"),
       environment: {
-        TABLE_NAME: table.tableName,
+        APP_TABLE_NAME: table.tableName,
       },
     });
 
@@ -68,50 +98,6 @@ export class AppStack extends cdk.Stack {
     table.grantWriteData(fnGet);
     table.grantWriteData(fnQuery);
     table.grantReadWriteData(fnUpdate);
-    table.grantWriteData(fnUpdate);
-
-    // Add Dynamo DB event sources to the respective functions
-    fnCreate.addEventSource(
-      new eventsources.DynamoEventSource(table, {
-        startingPosition: lambda.StartingPosition.LATEST,
-      })
-    );
-
-    fnUpdate.addEventSource(
-      new eventsources.DynamoEventSource(table, {
-        startingPosition: lambda.StartingPosition.LATEST,
-      })
-    );
-
-    fnRemove.addEventSource(
-      new eventsources.DynamoEventSource(table, {
-        startingPosition: lambda.StartingPosition.LATEST,
-      })
-    );
-
-    // Create a new ECS Fargate service from a Docker file
-    const ecsService =
-      new ecs_patterns.ApplicationMultipleTargetGroupsFargateService(
-        this,
-        "AppFargate",
-        {
-          memoryLimitMiB: 512,
-          cpu: 256,
-          taskImageOptions: {
-            image: ecs.ContainerImage.fromAsset("./meili/Dockerfile"),
-            containerPorts: [7700],
-            environment: {
-              MEILI_MASTER_KEY: "APP_MEILI_MASTER_KEY", // Create your own key, this key will be used in Meili client
-            },
-          },
-        }
-      );
-
-    // Output the URL of the load balancer
-    new cdk.CfnOutput(this, "AppLoadBalancerDNS", {
-      value: ecsService.loadBalancer.loadBalancerDnsName,
-    });
+    table.grantWriteData(fnRemove);
   }
 }
-
-const app = new cdk.App();
