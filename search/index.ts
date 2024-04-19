@@ -35,7 +35,7 @@ const useSearch = (
           image: ecs.ContainerImage.fromAsset("./search/Dockerfile"),
           containerPorts: [7700],
           environment: {
-            MEILI_MASTER_KEY: search.apiKey!, // Please provide this in the ".env" file, this key will be used in Meili client
+            MEILI_MASTER_KEY: search.apiKey!, // Please provide this in the ".env" file, this key will be used in Meilisearch client
           },
         },
       }
