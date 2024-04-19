@@ -1,73 +1,81 @@
-import {
-  DynamoDBStreamsClient,
-  ListStreamsCommand,
-} from "@aws-sdk/client-dynamodb-streams";
-import { MeiliSearch } from "meilisearch";
+import * as cdk from "aws-cdk-lib";
+import * as eventsources from "aws-cdk-lib/aws-lambda-event-sources";
+import * as ecs from "aws-cdk-lib/aws-ecs";
+import * as ecs_patterns from "aws-cdk-lib/aws-ecs-patterns";
+import * as lambda from "aws-cdk-lib/aws-lambda";
+import * as dynamodb from "aws-cdk-lib/aws-dynamodb";
 
-const APP_TABLE_NAME = process.env.APP_TABLE || "AppTable";
-const APP_SEARCH_HOST = process.env.APP_SEARCH_HOST || "";
-const APP_SEARCH_KEY = process.env.APP_SEARCH_KEY;
-const APP_SEARCH_INDEX = process.env.APP_SEARCH_INDEX || APP_TABLE_NAME;
-
-enum DynamoDBStreamsEventNames {
-  insert = "INSERT",
-  modify = "modify",
-  remove = "REMOVE",
-}
-
-const search = new MeiliSearch({
-  host: APP_SEARCH_HOST,
-  apiKey: APP_SEARCH_KEY,
-});
-const index = search.index(APP_SEARCH_INDEX);
-
-// Dynamo DB Streams Client configuration
-const config = {
-  // region: "REGION",
+type SearchProps = {
+  apiKey: string;
+  index?: string;
 };
-const client = new DynamoDBStreamsClient(config);
 
-// List Streams Input
-const input = {
-  TableName: APP_TABLE_NAME,
-  // Limit: Number("int"),
-  // ExclusiveStartStreamArn: "STRING_VALUE",
-};
-const command = new ListStreamsCommand(input);
-export const handler = async () => {
-  const result = await client.send(command);
-  const data = result.Records[0];
-  const { eventSource, eventName } = data;
-  if (
-    eventSource != "aws:dynamodb" &&
-    !Object.values(DynamoDBStreamsEventNames).includes(eventName)
-  ) {
-    return;
+type ContainerProps = Pick<
+  ecs_patterns.ApplicationMultipleTargetGroupsFargateServiceProps,
+  "memoryLimitMiB" | "cpu"
+>;
+
+const useSearch = (
+  table: dynamodb.Table,
+  search: SearchProps,
+  container: ContainerProps = {
+    memoryLimitMiB: ComputeValue.v512,
+    cpu: ComputeValue.v256,
   }
+) => {
+  // Create a new ECS Fargate service from a Docker file
+  const ecsService =
+    new ecs_patterns.ApplicationMultipleTargetGroupsFargateService(
+      this,
+      "AppFargate",
+      {
+        memoryLimitMiB: container?.memoryLimitMiB,
+        cpu: container?.cpu,
+        taskImageOptions: {
+          image: ecs.ContainerImage.fromAsset("./search/Dockerfile"),
+          containerPorts: [7700],
+          environment: {
+            MEILI_MASTER_KEY: search.apiKey!, // Please provide this in the ".env" file, this key will be used in Meilisearch client
+          },
+        },
+      }
+    );
 
-  console.log(result);
-  let response;
-  if (eventName === DynamoDBStreamsEventNames.insert) {
-    response = await onInsert(data.Records[0]);
-  } else if (eventName === DynamoDBStreamsEventNames.modify) {
-    response = await onModify(data.Records[0]);
-  } else if (eventName === DynamoDBStreamsEventNames.remove) {
-    response = await onRemove(data.Records[0]);
-  }
-  return response;
+  // Add Dynamo DB event sources to the handler function
+  const fnHandleDBStreams = new lambda.Function(
+    this,
+    "AppFunctionHandleDBStreams",
+    {
+      runtime: lambda.Runtime.NODEJS_16_X,
+      handler: "populate.handler",
+      code: lambda.Code.fromAsset("search"),
+      environment: {
+        APP_TABLE_NAME: table.tableName,
+        APP_SEARCH_HOST: ecsService.loadBalancer.loadBalancerDnsName,
+        APP_SEARCH_KEY: search.apiKey!, // Please provide this in the ".env" file
+        APP_SEARCH_INDEX: search.index || table.tableName,
+      },
+    }
+  );
+
+  fnHandleDBStreams.addEventSource(
+    new eventsources.DynamoEventSource(table, {
+      startingPosition: lambda.StartingPosition.LATEST,
+    })
+  );
+
+  // Output the URL of the load balancer
+  new cdk.CfnOutput(this, "AppLoadBalancerDNS", {
+    value: ecsService.loadBalancer.loadBalancerDnsName,
+  });
 };
 
-function onInsert(records: Record<string, any>[]) {
-  const documents = records.map((element) => element["dynamodb"]["NewImage"]);
-  return index.addDocuments(documents);
+enum ComputeValue {
+  v256 = 256,
+  v512 = 512,
+  v1024 = 1024,
+  v2048 = 2048,
+  v4096 = 4096,
 }
 
-function onModify(records: any[]) {
-  // Not implemented yet
-  // records.forEach((element) => {});
-}
-
-function onRemove(records: any[]) {
-  const ids = records.map((element) => element["dynamodb"]["NewImage"]["id"]);
-  return index.deleteDocuments([...ids]);
-}
+export { useSearch, SearchProps, ContainerProps, ComputeValue };
