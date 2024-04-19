@@ -2,6 +2,8 @@ import * as cdk from "aws-cdk-lib";
 import * as dynamodb from "aws-cdk-lib/aws-dynamodb";
 import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as eventsources from "aws-cdk-lib/aws-lambda-event-sources";
+import * as ecs from "aws-cdk-lib/aws-ecs";
+import * as ecs_patterns from "aws-cdk-lib/aws-ecs-patterns";
 import { Construct } from "constructs";
 
 export class AppStack extends cdk.Stack {
@@ -86,6 +88,29 @@ export class AppStack extends cdk.Stack {
         startingPosition: lambda.StartingPosition.LATEST,
       })
     );
+
+    // Create a new ECS Fargate service from a Docker file
+    const ecsService =
+      new ecs_patterns.ApplicationMultipleTargetGroupsFargateService(
+        this,
+        "AppFargate",
+        {
+          memoryLimitMiB: 512,
+          cpu: 256,
+          taskImageOptions: {
+            image: ecs.ContainerImage.fromAsset("./meili/Dockerfile"),
+            containerPorts: [7700],
+            environment: {
+              MEILI_MASTER_KEY: "APP_MEILI_MASTER_KEY", // Create your own key, this key will be used in Meili client
+            },
+          },
+        }
+      );
+
+    // Output the URL of the load balancer
+    new cdk.CfnOutput(this, "AppLoadBalancerDNS", {
+      value: ecsService.loadBalancer.loadBalancerDnsName,
+    });
   }
 }
 
