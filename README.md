@@ -1,0 +1,1 @@
+# cdk-dynamodb-meilisearch-typescript
