@@ -9,7 +9,7 @@ const APP_SEARCH_INDEX = process.env.APP_SEARCH_INDEX || APP_TABLE_NAME;
 const search = new MeiliSearch({
   host: APP_SEARCH_HOST,
   apiKey: APP_SEARCH_KEY,
-});
+})
 const index = search.index(APP_SEARCH_INDEX);
 
 export const handler = async (event: DynamoDBStreamEvent) => {
