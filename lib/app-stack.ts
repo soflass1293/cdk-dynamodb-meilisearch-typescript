@@ -6,7 +6,8 @@ import {
   ComputeValue,
   ContainerProps,
   SearchProps,
-  useSearch,
+  WithSearch,
+  WithSearchProps,
 } from "../search";
 
 const APP_TABLE_NAME = process.env.APP_TABLE || "AppTable";
@@ -21,7 +22,7 @@ export class AppStack extends cdk.Stack {
     const table = new dynamodb.Table(this, "AppTable", {
       partitionKey: { name: "id", type: dynamodb.AttributeType.STRING },
       removalPolicy: cdk.RemovalPolicy.DESTROY, // WARNING: This will delete your table and data when the stack is deleted
-      stream: dynamodb.StreamViewType.NEW_IMAGE,
+      stream: dynamodb.StreamViewType.NEW_AND_OLD_IMAGES, // You must add this steam and set it to "NEW_AND_OLD_IMAGES"
     });
 
     // Import useSearch helper
@@ -44,7 +45,8 @@ export class AppStack extends cdk.Stack {
       memoryLimitMiB: ComputeValue.v512,
     };
 
-    useSearch(table, search, container);
+    const withSearchProps: WithSearchProps = { table, search, container };
+    new WithSearch(this, "AppWithSearch", withSearchProps);
 
     // Add your own CRUD Lambda functions
     // Lambda Functions
@@ -95,8 +97,8 @@ export class AppStack extends cdk.Stack {
 
     // Grant Lambdas permissions to access DynamoDB table
     table.grantWriteData(fnCreate);
-    table.grantWriteData(fnGet);
-    table.grantWriteData(fnQuery);
+    table.grantReadData(fnGet);
+    table.grantReadData(fnQuery);
     table.grantReadWriteData(fnUpdate);
     table.grantWriteData(fnRemove);
   }
