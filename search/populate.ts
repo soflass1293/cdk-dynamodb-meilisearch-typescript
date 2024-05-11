@@ -1,7 +1,4 @@
-import {
-  DynamoDBStreamsClient,
-  ListStreamsCommand,
-} from "@aws-sdk/client-dynamodb-streams";
+import { DynamoDBStreamEvent } from "aws-lambda";
 import { MeiliSearch } from "meilisearch";
 
 const APP_TABLE_NAME = process.env.APP_TABLE || "AppTable";
@@ -9,65 +6,44 @@ const APP_SEARCH_HOST = process.env.APP_SEARCH_HOST || "";
 const APP_SEARCH_KEY = process.env.APP_SEARCH_KEY;
 const APP_SEARCH_INDEX = process.env.APP_SEARCH_INDEX || APP_TABLE_NAME;
 
-enum DynamoDBStreamsEventNames {
-  insert = "INSERT",
-  modify = "MODIFY",
-  remove = "REMOVE",
-}
-
 const search = new MeiliSearch({
   host: APP_SEARCH_HOST,
   apiKey: APP_SEARCH_KEY,
 });
 const index = search.index(APP_SEARCH_INDEX);
 
-// Dynamo DB Streams Client configuration
-const config = {
-  // region: "REGION",
-};
-const client = new DynamoDBStreamsClient(config);
-
-// List Streams Input
-const input = {
-  TableName: APP_TABLE_NAME,
-  // Limit: Number("int"),
-  // ExclusiveStartStreamArn: "STRING_VALUE",
-};
-const command = new ListStreamsCommand(input);
-export const handler = async () => {
-  const result = await client.send(command);
-  const data = result.Records[0];
-  const { eventSource, eventName } = data;
-  if (
-    eventSource != "aws:dynamodb" &&
-    !Object.values(DynamoDBStreamsEventNames).includes(eventName)
-  ) {
-    return;
-  }
-
-  console.log(result);
+export const handler = async (event: DynamoDBStreamEvent) => {
+  const records = event.Records;
+  const { eventName } = records[0];
   let response;
-  if (eventName === DynamoDBStreamsEventNames.insert) {
-    response = await onInsert(data.Records[0]);
-  } else if (eventName === DynamoDBStreamsEventNames.modify) {
-    response = await onModify(data.Records[0]);
-  } else if (eventName === DynamoDBStreamsEventNames.remove) {
-    response = await onRemove(data.Records[0]);
+  if (eventName === "INSERT") {
+    response = await onInsert(records);
+  } else if (eventName === "MODIFY") {
+    response = await onModify(records);
+  } else if (eventName === "REMOVE") {
+    response = await onRemove(records);
   }
   return response;
 };
 
-function onInsert(records: Record<string, any>[]) {
-  const documents = records.map((element) => element["dynamodb"]["NewImage"]);
-  return index.addDocuments(documents);
+function onInsert(records: DynamoDBStreamEvent["Records"]) {
+  const documents = records.map((element) => {
+    if (!element.dynamodb?.NewImage) {
+      return;
+    }
+    return element.dynamodb.NewImage;
+  });
+  const filtered = documents.filter((document) => document !== undefined);
+  return index.addDocuments(filtered, { primaryKey: "" });
 }
 
-function onModify(records: any[]) {
+function onModify(records: DynamoDBStreamEvent["Records"]) {
   // Not implemented yet
   // records.forEach((element) => {});
 }
 
-function onRemove(records: any[]) {
-  const ids = records.map((element) => element["dynamodb"]["NewImage"]["id"]);
-  return index.deleteDocuments([...ids]);
+function onRemove(records: DynamoDBStreamEvent["Records"]) { // TODO: Fix keys
+  const keys = records.map((element) => element.dynamodb?.Keys);
+  const id = keys.join();
+  return index.deleteDocuments([...id]);
 }
