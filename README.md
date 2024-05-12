@@ -35,3 +35,19 @@ If you want further customization you can customize the params
 - `npx cdk deploy` deploy this stack to your default AWS account/region
 - `npx cdk diff` compare deployed stack with current state
 - `npx cdk synth` emits the synthesized CloudFormation template
+
+
+    // Add Dynamo DB event sources to the handler function
+    const fnHandleDBStreams = new NodejsFunction(
+      this,
+      "WithSearchAppFunctionHandleDBStreams",
+      {
+        entry: `${__dirname}/../populate.ts`,
+        handler: "handler",
+        environment: {
+          APP_SEARCH_HOST: ecsService.loadBalancer.loadBalancerDnsName, // TODO: Update deprecated load balancer
+          APP_SEARCH_KEY: props.search.apiKey!, // Please provide this in the ".env" file
+          APP_SEARCH_INDEX: props.search.index || props.table.tableName,
+        },
+      }
+    );
