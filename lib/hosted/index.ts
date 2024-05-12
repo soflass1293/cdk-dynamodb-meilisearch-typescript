@@ -4,6 +4,7 @@ import * as ecs from "aws-cdk-lib/aws-ecs";
 import * as ecs_patterns from "aws-cdk-lib/aws-ecs-patterns";
 import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as eventsources from "aws-cdk-lib/aws-lambda-event-sources";
+import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import { Construct } from "constructs";
 
 type SearchProps = {
@@ -33,30 +34,29 @@ interface WithSearchProps {
 class WithSearch extends Construct {
   constructor(scope: Construct, id: string, props: WithSearchProps) {
     super(scope, id);
-    const ecsService =
-      new ecs_patterns.ApplicationMultipleTargetGroupsFargateService(
-        this,
-        "WithSearchFargate",
-        {
-          memoryLimitMiB: props.container?.memoryLimitMiB || ComputeValue.v512,
-          cpu: props.container?.cpu || ComputeValue.v256,
-          taskImageOptions: {
-            image: ecs.ContainerImage.fromAsset("./search/hosted/Dockerfile"),
-            containerPorts: [7700],
-            environment: {
-              MEILI_MASTER_KEY: props.search.apiKey!, // Please provide this in the ".env" file, this key will be used in Meilisearch client
-            },
+    const ecsService = new ecs_patterns.ApplicationLoadBalancedFargateService(
+      this,
+      "WithSearchFargate",
+      {
+        memoryLimitMiB: props.container?.memoryLimitMiB || ComputeValue.v512,
+        cpu: props.container?.cpu || ComputeValue.v256,
+        taskImageOptions: {
+          image: ecs.ContainerImage.fromAsset("./lib/hosted"),
+          containerPort: 7700,
+          environment: {
+            MEILI_MASTER_KEY: props.search.apiKey!, // Please provide this in the ".env" file, this key will be used in Meilisearch client
           },
-        }
-      );
+        },
+      }
+    );
+
     // Add Dynamo DB event sources to the handler function
-    const fnHandleDBStreams = new lambda.Function(
+    const fnHandleDBStreams = new NodejsFunction(
       this,
       "WithSearchAppFunctionHandleDBStreams",
       {
-        runtime: lambda.Runtime.NODEJS_16_X,
-        handler: "populate.handler",
-        code: lambda.Code.fromAsset("search"),
+        runtime: lambda.Runtime.NODEJS_20_X,
+        entry: `lib/populate.ts`,
         environment: {
           APP_SEARCH_HOST: ecsService.loadBalancer.loadBalancerDnsName, // TODO: Update deprecated load balancer
           APP_SEARCH_KEY: props.search.apiKey!, // Please provide this in the ".env" file
