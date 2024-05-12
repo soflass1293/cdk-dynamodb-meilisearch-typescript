@@ -1,4 +1,4 @@
-# Welcome to useSearch
+# Welcome to CDK DynamoDB Search
 
 This is an [Amazon DynamoDB](https://aws.amazon.com/dynamodb) helper enabling full text search using Meilisearch [Meilisearch](https://www.meilisearch.com) on top of [Amazon Web Services Cloud Development Kit (AWS CDK)](https://aws.amazon.com/cdk)
 
