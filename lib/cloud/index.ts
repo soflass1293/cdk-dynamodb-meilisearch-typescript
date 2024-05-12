@@ -1,6 +1,7 @@
 import * as dynamodb from "aws-cdk-lib/aws-dynamodb";
 import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as eventsources from "aws-cdk-lib/aws-lambda-event-sources";
+import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import { Construct } from "constructs";
 
 type SearchProps = {
@@ -22,13 +23,12 @@ class WithSearch extends Construct {
   constructor(scope: Construct, id: string, props: WithSearchProps) {
     super(scope, id);
     // Add Dynamo DB event sources to the handler function
-    const fnHandleDBStreams = new lambda.Function(
+    const fnHandleDBStreams = new NodejsFunction(
       this,
       "WithSearchAppFunctionHandleDBStreams",
       {
-        runtime: lambda.Runtime.NODEJS_16_X,
-        handler: "populate.handler",
-        code: lambda.Code.fromAsset("search"),
+        runtime: lambda.Runtime.NODEJS_20_X,
+        entry: `lib/populate.ts`,
         environment: {
           APP_SEARCH_HOST: props.provider.host,
           APP_SEARCH_KEY: props.search.apiKey!, // Please provide this in the ".env" file
