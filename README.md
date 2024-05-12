@@ -5,13 +5,13 @@ This is an [Amazon DynamoDB](https://aws.amazon.com/dynamodb) helper enabling fu
 # How to use
 
 1. Install the package
-   `npm install dynamodb-with-search`
+   `npm install cdk-dynamodb-search`
 2. Import the package
-   `import { WithHostedSearch } from "dynamodb-use-search";`
+   `import { WithHostedSearch } from "cdk-dynamodb-search";`
 3. Wrap your DynamoDB table with the WithSearch helper
    `new WithSearch(my_table)`
 4. Add the search API key (will be used as the master key [Meilisearch](https://www.meilisearch.com/docs/learn/security/basic_security))
-   `useSearch(my_table, { apiKey: "MY_SECRET_KEY"})`
+   `WithSearch(my_table, { apiKey: "MY_SECRET_KEY" })`
 
 That's it that was the minimal usage
 

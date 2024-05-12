@@ -28,7 +28,7 @@ class WithSearch extends Construct {
       "WithSearchAppFunctionHandleDBStreams",
       {
         runtime: lambda.Runtime.NODEJS_20_X,
-        entry: `lib/populate.ts`,
+        entry: `${__dirname}/../populate.js`,
         environment: {
           APP_SEARCH_HOST: props.provider.host,
           APP_SEARCH_KEY: props.search.apiKey!, // Please provide this in the ".env" file
