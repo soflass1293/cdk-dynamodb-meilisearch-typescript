@@ -1,3 +1,4 @@
+import { unmarshall } from "@aws-sdk/util-dynamodb";
 import { DynamoDBStreamEvent } from "aws-lambda";
 import { MeiliSearch } from "meilisearch";
 
@@ -9,11 +10,13 @@ const APP_SEARCH_INDEX = process.env.APP_SEARCH_INDEX || APP_TABLE_NAME;
 const search = new MeiliSearch({
   host: APP_SEARCH_HOST,
   apiKey: APP_SEARCH_KEY,
-})
+});
+
 const index = search.index(APP_SEARCH_INDEX);
 
 export const handler = async (event: DynamoDBStreamEvent) => {
   const records = event.Records;
+
   const { eventName } = records[0];
   let response;
   if (eventName === "INSERT") {
@@ -33,8 +36,15 @@ function onInsert(records: DynamoDBStreamEvent["Records"]) {
     }
     return element.dynamodb.NewImage;
   });
-  const filtered = documents.filter((document) => document !== undefined);
-  return index.addDocuments(filtered, { primaryKey: "" });
+  const filtered: Record<string, any>[] = [];
+  documents.forEach((element) => {
+    if (element !== undefined) {
+      // @ts-ignore
+      filtered.push(unmarshall(element));
+    }
+  });
+
+  return index.addDocuments(filtered);
 }
 
 function onModify(records: DynamoDBStreamEvent["Records"]) {
@@ -42,7 +52,8 @@ function onModify(records: DynamoDBStreamEvent["Records"]) {
   // records.forEach((element) => {});
 }
 
-function onRemove(records: DynamoDBStreamEvent["Records"]) { // TODO: Fix keys
+function onRemove(records: DynamoDBStreamEvent["Records"]) {
+  // TODO: Fix keys
   const keys = records.map((element) => element.dynamodb?.Keys);
   const id = keys.join();
   return index.deleteDocuments([...id]);
