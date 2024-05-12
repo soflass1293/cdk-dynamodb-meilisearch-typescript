@@ -41,7 +41,7 @@ class WithSearch extends Construct {
         memoryLimitMiB: props.container?.memoryLimitMiB || ComputeValue.v512,
         cpu: props.container?.cpu || ComputeValue.v256,
         taskImageOptions: {
-          image: ecs.ContainerImage.fromAsset("./search/hosted"),
+          image: ecs.ContainerImage.fromAsset("./lib/hosted"),
           containerPort: 7700,
           environment: {
             MEILI_MASTER_KEY: props.search.apiKey!, // Please provide this in the ".env" file, this key will be used in Meilisearch client
@@ -56,7 +56,7 @@ class WithSearch extends Construct {
       "WithSearchAppFunctionHandleDBStreams",
       {
         runtime: lambda.Runtime.NODEJS_20_X,
-        entry: `search/populate.ts`,
+        entry: `lib/populate.ts`,
         environment: {
           APP_SEARCH_HOST: ecsService.loadBalancer.loadBalancerDnsName, // TODO: Update deprecated load balancer
           APP_SEARCH_KEY: props.search.apiKey!, // Please provide this in the ".env" file
