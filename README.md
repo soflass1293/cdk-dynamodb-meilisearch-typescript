@@ -25,7 +25,7 @@ You can calculate the cost [here](https://calculator.aws)
 to get started on using the Meilisearch Cloud mode jump to [Getting started with Meilisearch Hosted mode](#getting-started-with-meilisearch-hosted-mode) section
 
 # Getting started
-## Getting started with Meilisearch Cloud mode 
+## Getting started with Meilisearch Cloud mode - [View example](https://github.com/soflass1293/cdk-dynamodb-meilisearch-typescript/blob/update-readme/examples/cloud.ts)
 
  1. Install the package
  - Using [NPM](https://www.npmjs.com)
@@ -96,7 +96,7 @@ new WithCloudSearch(this,"MySearch", {
   }
 });
 ```
-## Getting started with Meilisearch Hosted mode 
+## Getting started with Meilisearch Hosted mode - [View example](https://github.com/soflass1293/cdk-dynamodb-meilisearch-typescript/blob/update-readme/examples/self-hosted.ts) 
 
  1. Install the package
 - Using [NPM](https://www.npmjs.com)

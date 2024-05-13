@@ -1,6 +1,6 @@
 {
   "name": "cdk-dynamodb-search",
-  "version": "0.1.16",
+  "version": "0.1.161",
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
   "license": "MIT",
