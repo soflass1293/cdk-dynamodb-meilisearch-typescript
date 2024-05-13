@@ -4,7 +4,7 @@ import * as dynamodb from "aws-cdk-lib/aws-dynamodb";
 import { Construct } from "constructs";
 
 // Import the package
-import { WithCloudSearch } from "../lib";
+import { WithCloudSearch } from "cdk-dynamodb-search";
 
 export class CdkTestStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
