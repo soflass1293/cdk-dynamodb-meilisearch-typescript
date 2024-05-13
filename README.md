@@ -28,9 +28,9 @@ to get started on using the Meilisearch Cloud mode jump to [Getting started with
 ## Getting started with Meilisearch Cloud mode 
 
  1. Install the package
- Using [NPM](https://www.npmjs.com)
+ - Using [NPM](https://www.npmjs.com)
 `npm install cdk-dynamodb-search`
-or using [Yarn](https://yarnpkg.com)
+- Using [Yarn](https://yarnpkg.com)
 `yarn add cdk-dynamodb-search`
 2. Get the host and the API key
 Create an account in [Meilisearch Cloud](https://www.meilisearch.com/cloud) and get the host URL and the API key from your settings.
@@ -99,9 +99,9 @@ new WithCloudSearch(this,"MySearch", {
 ## Getting started with Meilisearch Hosted mode 
 
  1. Install the package
- Using [NPM](https://www.npmjs.com)
+- Using [NPM](https://www.npmjs.com)
 `npm install cdk-dynamodb-search`
-or using [Yarn](https://yarnpkg.com)
+- Using [Yarn](https://yarnpkg.com)
 `yarn add cdk-dynamodb-search`
 
 2. Import the package
