@@ -52,24 +52,24 @@ new WithCloudSearch(this,"MySearch", {
 5. Add the search API key (will be used as the [Meilisearch master key](https://www.meilisearch.com/docs/learn/security/basic_security)  - **Required**
 ```typescript
 new WithCloudSearch(this,"MySearch", {
-	table: my_table,
-	search: {
-		// apiKey: string - Required	
-		apiKey: "MY_SUPER_SECRET_KEY" // Add here!!!
-	}
+  table: my_table,
+  search: {
+    // apiKey: string - Required	
+    apiKey: "MY_SUPER_SECRET_KEY" // Add here!!!
+  }
 });
 ```
 6. Add the search host URL - **Required**
 ```typescript
 new WithCloudSearch(this,"MySearch", {
-	table: my_table,
-	search: {
-		apiKey: "MY_SUPER_SECRET_KEY"
-	},
-	provider: {
-		// host: string - Required
-		host: "https://...your-meilisearch-host" // Add here!!!
-	}
+  table: my_table,
+  search: {
+    apiKey: "MY_SUPER_SECRET_KEY"
+  },
+  provider: {
+    // host: string - Required
+    host: "https://...your-meilisearch-host" // Add here!!!
+  }
 });
 ```
 7. Deploy the solution - **Required**
@@ -85,15 +85,15 @@ If you want further customization you can customize the params:
 1. Set the Meilisearch search index - **Optional**
 ```typescript
 new WithCloudSearch(this,"MySearch", {
-	table: my_table,
-	search: {
-		apiKey: "MY_SUPER_SECRET_KEY",
-		index: "my-search-index"
-	},
-	provider: {
-		// host: string - Optional
-		host: "https://...your-meilisearch-host" // Add here!!!
-	}
+  table: my_table,
+  search: {
+    apiKey: "MY_SUPER_SECRET_KEY",
+    index: "my-search-index"
+  },
+  provider: {
+    // host: string - Optional
+    host: "https://...your-meilisearch-host" // Add here!!!
+  }
 });
 ```
 ## Getting started with Meilisearch Hosted mode 
@@ -113,19 +113,19 @@ import { WithHostedSearch } from "cdk-dynamodb-search";
 3. Wrap your DynamoDB table with the WithSearch helper  - **Required**
 ```typescript
 new WithHostedSearch(this,"MySearch", {
-	// my_table: dynamodb.Table - Required
-	table: my_table  // Add here!!!
+  // my_table: dynamodb.Table - Required
+  table: my_table  // Add here!!!
 });
 ```
 
 4. Add the search API key (will be used as the [Meilisearch master key](https://www.meilisearch.com/docs/learn/security/basic_security)  - **Required**
 ```typescript
 new WithCloudSearch(this,"MySearch", {
-	table: my_table,
-	search: {
-		// apiKey: string - Required - Create your own key
-		apiKey: "MY_SUPER_SECRET_KEY" // Add here!!!
-	}
+  table: my_table,
+  search: {
+    // apiKey: string - Required - Create your own key
+    apiKey: "MY_SUPER_SECRET_KEY" // Add here!!!
+  }
 });
 ```
 
@@ -142,15 +142,15 @@ If you want further customization you can customize the params:
 1. Set the Meilisearch search index - **Optional**
 ```typescript
 new WithCloudSearch(this,"MySearch", {
-	table: my_table,
-	search: {
-		apiKey: "MY_SUPER_SECRET_KEY",
-		index: "my-search-index"
-	},
-	provider: {
-		// host: string - Optional
-		host: "https://...your-meilisearch-host" // Add here!!!
-	}
+  table: my_table,
+  search: {
+    apiKey: "MY_SUPER_SECRET_KEY",
+    index: "my-search-index"
+  },
+  provider: {
+    // host: string - Optional
+    host: "https://...your-meilisearch-host" // Add here!!!
+  }
 });
 ```
 
@@ -158,24 +158,24 @@ new WithCloudSearch(this,"MySearch", {
 -	Import ComputeValue
 ```typescript
 import { 
-	WithHostedSearch 
-	ComputeValue // Add here!!!
+  WithHostedSearch 
+  ComputeValue // Add here!!!
 } from "cdk-dynamodb-search";
 ```
 - Add the container CPU compute power
 
 ```typescript
 new WithCloudSearch(this,"MySearch", {
-	table: my_table,
-	search: {
-		apiKey: "MY_SUPER_SECRET_KEY",
-		index: "my-search-index"
-	},
-	// container: WithSearchProps["ContainerProps"] - Optional
-	container: {
-		// cpu: ComputeValue - Optional - default 256
-		cpu: ComputeValue.v512 // Add here!!!
-	}
+  table: my_table,
+  search: {
+    apiKey: "MY_SUPER_SECRET_KEY",
+    index: "my-search-index"
+  },
+  // container: WithSearchProps["ContainerProps"] - Optional
+  container: {
+    // cpu: ComputeValue - Optional - default 256
+    cpu: ComputeValue.v512 // Add here!!!
+  }
 });
 ```
 
@@ -183,24 +183,24 @@ new WithCloudSearch(this,"MySearch", {
 -	Import ComputeValue
 ```typescript
 import { 
-	WithHostedSearch 
-	ComputeValue // Add here!!!
+  WithHostedSearch 
+  ComputeValue // Add here!!!
 } from "cdk-dynamodb-search";
 ```
 - Add the container memory
 
 ```typescript
 new WithCloudSearch(this,"MySearch", {
-	table: my_table,
-	search: {
-		apiKey: "MY_SUPER_SECRET_KEY",
-		index: "my-search-index"
-	},
-	// container: WithSearchProps["ContainerProps"] - Optional
-	container: {
-		// memory: ComputeValue - Optional - default 512
-		memory: ComputeValue.v1024 // Add here!!!
-	}
+  table: my_table,
+  search: {
+    apiKey: "MY_SUPER_SECRET_KEY",
+    index: "my-search-index"
+  },
+  // container: WithSearchProps["ContainerProps"] - Optional
+  container: {
+    // memory: ComputeValue - Optional - default 512
+    memory: ComputeValue.v1024 // Add here!!!
+  }
 });
 ```
 
@@ -209,16 +209,16 @@ new WithCloudSearch(this,"MySearch", {
 
 ```typescript
 type CloudSearchProps = {
-	apiKey: string;
-	index?: string;
+  apiKey: string;
+  index?: string;
 };
 type ProviderProps = {
-	host: string;
+  host: string;
 };
 interface WithCloudSearchProps {
-	table: dynamodb.Table;
-	search: SearchProps;
-	provider: ProviderProps;
+  table: dynamodb.Table;
+  search: SearchProps;
+  provider: ProviderProps;
 }
 ```
 
@@ -226,24 +226,24 @@ interface WithCloudSearchProps {
 
 ```typescript
 type HostedSearchProps = {
-	apiKey: string;
-	index?: string;
+  apiKey: string;
+  index?: string;
 };
 enum ComputeValue {
-    v256 = 256,
-    v512 = 512,
-    v1024 = 1024,
-    v2048 = 2048,
-    v4096 = 4096,
+  v256 = 256,
+  v512 = 512,
+  v1024 = 1024,
+  v2048 = 2048,
+  v4096 = 4096,
 }
 type ContainerProps = {
-	memoryLimitMiB: ComputeValue.v512;
-	cpu: ComputeValue.v256;
+  memoryLimitMiB: ComputeValue.v512;
+  cpu: ComputeValue.v256;
 };
 interface WithHostedSearchProps {
-	table: dynamodb.Table;
-	search: SearchProps;
-	provider: ProviderProps;
+  table: dynamodb.Table;
+  search: SearchProps;
+  provider: ProviderProps;
 }
 ```
 
