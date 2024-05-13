@@ -29,6 +29,7 @@ class WithSearch extends Construct {
       {
         runtime: lambda.Runtime.NODEJS_20_X,
         entry: `${__dirname}/../populate.js`,
+        handler: "handler",
         environment: {
           APP_SEARCH_HOST: props.provider.host,
           APP_SEARCH_KEY: props.search.apiKey!, // Please provide this in the ".env" file
