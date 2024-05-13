@@ -36,7 +36,7 @@ or using [Yarn](https://yarnpkg.com)
 Create an account in [Meilisearch Cloud](https://www.meilisearch.com/cloud) and get the host URL and the API key from your settings.
 
 3. Import the package
-Import "WithCloudSearch" into the stack containing the table definition
+Import "WithCloudSearch" into the stack containing the table definition  - **Required**
 ```typescript
 import { WithCloudSearch } from "cdk-dynamodb-search";
 ```
@@ -105,7 +105,7 @@ or using [Yarn](https://yarnpkg.com)
 `yarn add cdk-dynamodb-search`
 
 2. Import the package
-Import "WithCloudSearch" into the stack containing the table definition
+Import "WithCloudSearch" into the stack containing the table definition  - **Required**
 ```typescript
 import { WithHostedSearch } from "cdk-dynamodb-search";
 ```
