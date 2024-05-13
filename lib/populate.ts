@@ -1,6 +1,7 @@
 import { unmarshall } from "@aws-sdk/util-dynamodb";
 import { DynamoDBStreamEvent } from "aws-lambda";
 import { MeiliSearch } from "meilisearch";
+import { createId, sortKeys } from "./utils";
 
 const APP_TABLE_NAME = process.env.APP_TABLE || "AppTable";
 const APP_SEARCH_HOST = process.env.APP_SEARCH_HOST || "";
@@ -11,12 +12,10 @@ const search = new MeiliSearch({
   host: APP_SEARCH_HOST,
   apiKey: APP_SEARCH_KEY,
 });
-
 const index = search.index(APP_SEARCH_INDEX);
 
-export const handler = async (event: DynamoDBStreamEvent) => {
-  const records = event.Records;
-
+async function handler(event: DynamoDBStreamEvent) {
+   const records = event.Records;
   const { eventName } = records[0];
   let response;
   if (eventName === "INSERT") {
@@ -27,34 +26,66 @@ export const handler = async (event: DynamoDBStreamEvent) => {
     response = await onRemove(records);
   }
   return response;
-};
+}
 
 function onInsert(records: DynamoDBStreamEvent["Records"]) {
-  const documents = records.map((element) => {
+   const documents = records.map((element) => {
     if (!element.dynamodb?.NewImage) {
       return;
     }
-    return element.dynamodb.NewImage;
+    const { NewImage, Keys } = element.dynamodb;
+    return { NewImage, Keys };
   });
   const filtered: Record<string, any>[] = [];
   documents.forEach((element) => {
     if (element !== undefined) {
+      const { NewImage, Keys } = element;
       // @ts-ignore
-      filtered.push(unmarshall(element));
+      const sortedKeys = sortKeys(unmarshall(Keys));
+      const id = createId(sortedKeys);
+      const sortedImage = unmarshall(NewImage as Record<string, any>); // TODO: use this "as Record<string, AttributeValue>""
+      const document = { ...sortedImage, id };
+      // @ts-ignore
+      filtered.push(document);
     }
   });
-
-  return index.addDocuments(filtered);
+   return index.addDocuments(filtered);
 }
 
 function onModify(records: DynamoDBStreamEvent["Records"]) {
-  // Not implemented yet
-  // records.forEach((element) => {});
+  const documents = records.map((element) => {
+    if (!element.dynamodb?.NewImage) {
+      return;
+    }
+    const { NewImage, Keys } = element.dynamodb;
+    return { NewImage, Keys };
+  });
+  const filtered: Record<string, any>[] = [];
+  documents.forEach((element) => {
+    if (element !== undefined) {
+      const { NewImage, Keys } = element;
+      // @ts-ignore
+      const sortedKeys = sortKeys(unmarshall(Keys));
+      const id = createId(sortedKeys);
+      const sortedImage = unmarshall(NewImage as Record<string, any>); // TODO: use this "as Record<string, AttributeValue>""
+      const document = { ...sortedImage, id };
+      // @ts-ignore
+      filtered.push(document);
+    }
+  });
+  return index.updateDocuments(filtered);
 }
 
 function onRemove(records: DynamoDBStreamEvent["Records"]) {
-  // TODO: Fix keys
-  const keys = records.map((element) => element.dynamodb?.Keys);
-  const id = keys.join();
-  return index.deleteDocuments([...id]);
+  const ids: string[] = [];
+  records.map((element) => {
+    const keys = element.dynamodb?.Keys;
+    // @ts-ignore
+    const sorted = sortKeys(unmarshall(keys));
+    const id = createId(sorted);
+    ids.push(id);
+  });
+  return index.deleteDocuments([...ids]);
 }
+
+export { handler };
