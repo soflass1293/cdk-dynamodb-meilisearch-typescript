@@ -1,8 +1,19 @@
 {
-  "name": "cdk-dynamodb-meilisearch-typescript",
-  "version": "0.1.0",
-  "main": "lib/index.js",
-  "types": "lib/index.d.ts",
+  "name": "cdk-dynamodb-search",
+  "version": "0.1.15",
+  "main": "./lib/index.js",
+  "types": "./lib/index.d.ts",
+  "license": "MIT",
+  "description": "An Amazon DynamoDB helper enabling full text search using Meilisearch",
+  "keywords": [
+    "awscdk",
+    "cdk8s",
+    "cdktf",
+    "cdkv2",
+    "dynamodb",
+    "search",
+    "meilisearch"
+  ],
   "scripts": {
     "build": "tsc",
     "watch": "tsc -w",
@@ -25,6 +36,7 @@
   },
   "dependencies": {
     "@aws-sdk/util-dynamodb": "3.574.0",
+    "dotenv": "16.4.5",
     "meilisearch": "0.39.0"
   }
 }
