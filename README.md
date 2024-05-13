@@ -13,7 +13,7 @@ When an item/items is inserted in the table, an "MODIFY" event is triggered, an 
 When an item/items is inserted in the table, an "REMOVE" event is triggered, an [AWS Lambda](https://aws.amazon.com/lambda) function listens to this event and deletes a document/documents based on the recieved record/records primary keys using [Meilisearch Client delete documents](https://www.meilisearch.com/docs/reference/api/documents#delete-documents).
 
 # Modes
-Currently the package uses two modes Cloud and Self-hosted:
+Currently the package supports two modes Cloud and Self-hosted:
 
 ### Cloud
 Uses [Meilisearch Cloud](https://www.meilisearch.com/cloud) service managed by Meilisearch team.
