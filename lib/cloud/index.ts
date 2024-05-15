@@ -13,11 +13,11 @@ type ProviderProps = {
   host: string;
 };
 
-interface WithSearchProps {
+type WithSearchProps = {
   table: dynamodb.Table;
   search: SearchProps;
   provider: ProviderProps;
-}
+};
 
 class WithSearch extends Construct {
   constructor(scope: Construct, id: string, props: WithSearchProps) {

@@ -25,7 +25,7 @@ enum ComputeValue {
   v4096 = 4096,
 }
 
-interface WithSearchProps {
+type WithSearchProps = {
   table: dynamodb.Table;
   search: SearchProps;
   container?: ContainerProps;
