@@ -1,7 +1,7 @@
 {
   "name": "cdk-dynamodb-search",
   "homepage": "https://github.com/soflass1293/cdk-dynamodb-meilisearch-typescript",
-  "version": "0.1.18",
+  "version": "1.0.0",
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
   "author": {
