@@ -56,6 +56,13 @@
   "jsii": {
     "outdir": "dist",
     "targets": {
+      "java": {
+        "package": "soflass.libs.withsearch.core",
+        "maven": {
+          "groupId": "soflass.core",
+          "artifactId": "core"
+        }
+      },
       "python": {
         "distName": "WithSearch",
         "module": "WithSearch"
