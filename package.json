@@ -1,7 +1,7 @@
 {
   "name": "cdk-dynamodb-search",
   "homepage": "https://github.com/soflass1293/cdk-dynamodb-meilisearch-typescript",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
   "author": {
@@ -13,8 +13,6 @@
   "description": "An Amazon DynamoDB helper enabling full text search using Meilisearch",
   "keywords": [
     "awscdk",
-    "cdk8s",
-    "cdktf",
     "cdkv2",
     "dynamodb",
     "search",

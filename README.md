@@ -6,11 +6,11 @@ This is an [Amazon DynamoDB](https://aws.amazon.com/dynamodb) helper written in 
 # How does it work?
 This package is a wrapper around [Amazon DynamoDB](https://aws.amazon.com/dynamodb) table that listens to its ("INSERT", "MODIFY", "REMOVE") events using [Amazon DynamoDB Streams](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Streams.html).
 ### Insert event
-When an item/items is inserted in the table, an "INSERT" event is triggered, an [AWS Lambda](https://aws.amazon.com/lambda) function listens to this event and inserts a document/documents based on the recieved record/records using [Meilisearch Client add documents](https://www.meilisearch.com/docs/reference/api/documents#add-or-replace-documents).
+When an item/items is inserted in the table, an "INSERT" event is triggered, an [AWS Lambda](https://aws.amazon.com/lambda) function listens to this event and inserts a document/documents based on the received record/records using [Meilisearch Client add documents](https://www.meilisearch.com/docs/reference/api/documents#add-or-replace-documents).
 ### Modify event
-When an item/items is inserted in the table, an "MODIFY" event is triggered, an [AWS Lambda](https://aws.amazon.com/lambda) function listens to this event and updates a document/documents based on the recieved record/records using [Meilisearch Client update documents](https://www.meilisearch.com/docs/reference/api/documents#add-or-update-documents).
+When an item/items is inserted in the table, an "MODIFY" event is triggered, an [AWS Lambda](https://aws.amazon.com/lambda) function listens to this event and updates a document/documents based on the received record/records using [Meilisearch Client update documents](https://www.meilisearch.com/docs/reference/api/documents#add-or-update-documents).
 ### Remove event
-When an item/items is inserted in the table, an "REMOVE" event is triggered, an [AWS Lambda](https://aws.amazon.com/lambda) function listens to this event and deletes a document/documents based on the recieved record/records primary keys using [Meilisearch Client delete documents](https://www.meilisearch.com/docs/reference/api/documents#delete-documents).
+When an item/items is inserted in the table, an "REMOVE" event is triggered, an [AWS Lambda](https://aws.amazon.com/lambda) function listens to this event and deletes a document/documents based on the received record/records primary keys using [Meilisearch Client delete documents](https://www.meilisearch.com/docs/reference/api/documents#delete-documents).
 
 # Modes
 Currently the package supports two modes Cloud and Self-hosted:
